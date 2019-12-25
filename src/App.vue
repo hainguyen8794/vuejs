@@ -12,7 +12,9 @@
          <div class="form-group">
              <button class="btn btn-block btn-success" type="submit" @click="submit" > Submit</button>
          </div>
-        
+        <input class="form-control" v-model="node" type="text" >
+
+      
          <button class="btn btn-block btn-warning" @click="getAllUser" >Get All Data</button>
          <ul class="list-group">
            <li class="list-group-item" v-for="user in users" >{{user.username}} - {{user.email}}</li>
@@ -27,7 +29,17 @@
 <script>
 export default {
   created(){
-      this.resource = this.$resource('data.json')
+    const customActions = {
+      createItem :{
+        method: 'POST',
+        url:'user.json'
+      },
+      getNodeData:{
+        method:'GET'
+
+      }
+    }
+      this.resource = this.$resource('{node}.json',{}, customActions )
   },
   data(){
     return {
@@ -36,13 +48,14 @@ export default {
         email:''
       },
       users:[],
-      resource  :{}
+      resource  :{},
+      node:'user'
 
     }
   },
   methods:{
     submit(){
-       this.resource.save({},this.user);
+       this.resource.createItem(this.user);
   //  this.$http.post('', this.user).then(reponse=>{
   //    console.log(reponse)
   //  }, error=>{
@@ -52,7 +65,8 @@ export default {
     },
       getAllUser(){
         
-          this.resource.get({}).then(response => {
+        this.resource.getNodeData({node:this.node})
+        .then(response => {
          return response.json()
   }).then(data => {
      const newArr = []
@@ -62,6 +76,17 @@ export default {
        this.users = newArr
 
   });
+        
+  //         this.resource.get({}).then(response => {
+  //        return response.json()
+  // }).then(data => {
+  //    const newArr = []
+  //      for (let key in data){
+  //       newArr.push(data[key])
+  //    }
+  //      this.users = newArr
+
+  // });
   //     this.$http.get('').then(reponse=>{
   //    return reponse.json()
   //  }).then(data => {
